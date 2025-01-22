@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("INV_MGMT_SYS")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+54909bc4a4ad284cab7b8b43b4b8280bd389db0d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d5947bb949a7c6ffc4e72072e184c16ba6e0c6cf")]
 [assembly: System.Reflection.AssemblyProductAttribute("INV_MGMT_SYS")]
 [assembly: System.Reflection.AssemblyTitleAttribute("INV_MGMT_SYS")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
