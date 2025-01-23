@@ -12,11 +12,11 @@ using System.Windows.Shapes;
 namespace INV_MGMT_SYS
 {
     /// <summary>
-    /// Interaction logic for StartupWin.xaml
+    /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class StartupWin : Window
+    public partial class MainWindow : Window
     {
-        public StartupWin()
+        public MainWindow()
         {
             InitializeComponent();
         }

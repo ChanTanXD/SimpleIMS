@@ -15,7 +15,7 @@ namespace INV_MGMT_SYS
     {
         public App()
         {
-            Application.Current.MainWindow = new OptionWin();
+            Application.Current.MainWindow = new MainWindow();
             Application.Current.MainWindow.Show();
         }
     }

@@ -27,7 +27,7 @@ namespace INV_MGMT_SYS
         public InsertWin()
         {
             InitializeComponent();
-            InitSupabase();
+            //InitSupabase();
         }
         private void ReturnOnClick(object sender, RoutedEventArgs e)
         {
@@ -56,7 +56,7 @@ namespace INV_MGMT_SYS
                 catalogueLink = "websiteA"
             };
 
-            await supabase.From<Aircon>().Insert(model);
+            //await supabase.From<Aircon>().Insert(model);
         }
 
         private async void InitSupabase()
