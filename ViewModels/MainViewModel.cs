@@ -26,13 +26,13 @@ namespace INV_MGMT_SYS.ViewModels
 
         // Define the Execute and CanExecute delegates for the command
         // and pass them to the constructor
-        public ICommand SelectPageFromIndexCommand => new SelectPageCommand(
+        public ICommand SelectPageFromIndexCommand => new RelayCommand(
           param => this.SelectedPage = this.Pages.ElementAt(int.Parse(param as string)),
           param => int.TryParse(param as string, out int index));
 
         // Define the Execute and CanExecute delegates for the command
         // and pass them to the constructor
-        public ICommand SelectNextPageCommand => new SelectPageCommand(
+        public ICommand SelectNextPageCommand => new RelayCommand(
           param => this.SelectedPage = this.Pages.ElementAt(this.Pages.IndexOf(this.SelectedPage) + 1),
           param => this.Pages.IndexOf(this.SelectedPage) + 1 < this.Pages.Count);
 
@@ -43,9 +43,7 @@ namespace INV_MGMT_SYS.ViewModels
             set
             {
                 if (object.Equals(value, this.selectedPage))
-                {
                     return;
-                }
 
                 this.selectedPage = value;
                 OnPropertyChanged();

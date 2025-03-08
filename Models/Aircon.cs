@@ -24,7 +24,7 @@ namespace INV_MGMT_SYS
         public string series { get; set; }
 
         [Column("PRICE")]
-        public double price { get; set; }
+        public decimal price { get; set; }
 
         [Column("STOCK")]
         public int stock { get; set; }

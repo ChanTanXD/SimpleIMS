@@ -6,8 +6,70 @@
              xmlns:local="clr-namespace:INV_MGMT_SYS"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <StackPanel>
-        <TextBlock TextWrapping="Wrap" Text="TextBlock"/>
+    <StackPanel Grid.IsSharedSizeScope="True">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Content="Brand"/>
+            <TextBox Grid.Column="1" Text="{Binding BrandBox, UpdateSourceTrigger=PropertyChanged}"/>
+        </Grid>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Content="HP"/>
+            <TextBox Grid.Column="1" Text="{Binding HPBox, UpdateSourceTrigger=PropertyChanged}"/>
+        </Grid>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Content="Model"/>
+            <TextBox Grid.Column="1" Text="{Binding ModelBox, UpdateSourceTrigger=PropertyChanged}"/>
+        </Grid>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Content="Series"/>
+            <TextBox Grid.Column="1" Text="{Binding SeriesBox, UpdateSourceTrigger=PropertyChanged}"/>
+        </Grid>
+        
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Content="Price"/>
+            <TextBox Grid.Column="1" Text="{Binding PriceBox, UpdateSourceTrigger=PropertyChanged}"/>
+        </Grid>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Content="Stock"/>
+            <TextBox Grid.Column="1" Text="{Binding StockBox, UpdateSourceTrigger=PropertyChanged}"/>
+        </Grid>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Content="Catalogue link"/>
+            <TextBox Grid.Column="1" Text="{Binding CatLinkBox, UpdateSourceTrigger=PropertyChanged}" />
+        </Grid>
+        <Button Content="Insert" Command="{Binding DataInsertCommand}"/>
 
     </StackPanel>
 </UserControl>

@@ -9,14 +9,15 @@ namespace INV_MGMT_SYS
 {
     class SelectPageCommand : ICommand
     {
+        private Action<object> ExecuteDelegate { get; }
+        private Predicate<object> CanExecuteDelegate { get; }
+
         public SelectPageCommand(Action<object> executeDelegate, Predicate<object> canExecuteDelegate)
         {
             this.ExecuteDelegate = executeDelegate;
             this.CanExecuteDelegate = canExecuteDelegate;
         }
 
-        private Predicate<object> CanExecuteDelegate { get; }
-        private Action<object> ExecuteDelegate { get; }
 
         #region Implementation of ICommand
 

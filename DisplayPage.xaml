@@ -7,8 +7,27 @@
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800">
 
-    <StackPanel>
-        <TextBlock Text="{Binding PageTitle}" />
-        <TextBlock Text="{Binding Message}" />
+    <StackPanel Orientation="Vertical">
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="Search by: " />
+            <ComboBox ItemsSource="{Binding Path=SearchCategoryBox}"
+                      DisplayMemberPath="val"
+                      SelectedValuePath="val"
+                      SelectedValue="{Binding Path=SearchCategoryVal}"/>
+            <TextBox TextWrapping="Wrap" Text="{Binding SearchValBox}" Width="120"/>
+            <Button Content="Search" Command="{Binding SearchCommand}"/>
+        </StackPanel>
+        <DataGrid Height="100" ItemsSource="{Binding AirconList, Mode=OneWay}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding IdField, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="Model" Binding="{Binding ModelField, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="Brand" Binding="{Binding BrandField, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="HP" Binding="{Binding HPField, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="Series" Binding="{Binding SeriesField, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="Price" Binding="{Binding PriceField, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="Stock" Binding="{Binding StockField, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="Link" Binding="{Binding LinkField, UpdateSourceTrigger=PropertyChanged}"/>
+            </DataGrid.Columns>
+        </DataGrid>
     </StackPanel>
 </UserControl>
