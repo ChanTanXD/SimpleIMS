@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -26,6 +27,13 @@ namespace INV_MGMT_SYS.ViewModels
         private string _stockVal;
         private string _catLinkVal;
 
+        public InsertPageViewModel(Client supabase)
+        {
+            this.PageTitle = "Items insertion";
+            this.supabase = supabase;
+        }
+
+        #region Properties
         public string PageTitle
         {
             get => this.pageTitle;
@@ -99,16 +107,12 @@ namespace INV_MGMT_SYS.ViewModels
             }
         }
 
-        public InsertPageViewModel()
-        {
-            this.PageTitle = "Items insertion";
-        }
-
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+        #endregion
 
         private ICommand _dataInsert;
         public ICommand DataInsertCommand
@@ -118,36 +122,56 @@ namespace INV_MGMT_SYS.ViewModels
                 if (_dataInsert == null)
                 {
                     _dataInsert = new RelayCommand(
-                        param => this.DataInsert(),
-                        param => this.DataFieldCheck());
+                        param => this.DataInsert());
                 }
                 return _dataInsert;
             }
         }
 
+        private ICommand _dataClear;
+        public ICommand DataClearCommand
+        {
+            get
+            {
+                if (_dataClear == null)
+                {
+                    _dataClear = new RelayCommand(
+                        param => this.DataClear());
+                }
+                return _dataClear;
+            }
+        }
+
         private bool DataFieldCheck()
         {
-            //Check if all fields are valid
-            //wip
-            return true;
-        }
-        public void TextParseError()
-        {
-            //wip
-            return;
+            if(!Regex.IsMatch(_modelVal, @"[^A-Za-z0-9]+") &&
+            !Regex.IsMatch(_brandVal, @"[^A-Za-z0-9]+") &&
+            Regex.IsMatch(_hpVal, @"^(\d{0,9}|\d{0,9}\.\d{1,3})$") &&
+            !Regex.IsMatch(_seriesVal, @"[^A-Za-z0-9]+") &&
+            Regex.IsMatch(_priceVal, @"^(\d{0,9}|\d{0,9}\.\d{1,3})$") &&
+            Regex.IsMatch(_stockVal, @"^(\d{0,9})$") &&
+            !Regex.IsMatch(_catLinkVal, @"[^A-Za-z0-9]+"))
+            {
+                return true;
+            }
+            else
+                return false;
         }
 
         private async void DataInsert()
         {
-            float _parsedHp;
+            if (!DataFieldCheck())
+                return;
+
+            decimal _parsedHp;
             decimal _parsedPrice;
             int _parsedStock;
 
-            if (!float.TryParse(_hpVal, out _parsedHp) ||
+            if (!decimal.TryParse(_hpVal, out _parsedHp) ||
                 !decimal.TryParse(_priceVal, out _parsedPrice) ||
                 !int.TryParse(_stockVal, out _parsedStock))
             {
-                TextParseError();
+                Console.WriteLine("Parsing error on DataInsert()");
                 return;
             }
 
@@ -163,58 +187,19 @@ namespace INV_MGMT_SYS.ViewModels
                 catalogueLink = _catLinkVal
             };
 
-            InitSupabase();
             await supabase.From<Aircon>().Insert(model);
+            DataClear();
         }
 
-        private async void InitSupabase()
+        public void DataClear()
         {
-            Console.WriteLine("Init started");
-            NetworkStatus NetworkStatus = new();
-
-            SupabaseOptions options = new();
-            options.AutoRefreshToken = true;
-
-            const string projURL = "https://shkofncmerdkpthgpihu.supabase.co";
-            const string publicAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNoa29mbmNtZXJka3B0aGdwaWh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzczNDEyNDQsImV4cCI6MjA1MjkxNzI0NH0.W_aqHJZuXG5bA7CzbSeCtaqK-GRJAuQqJfDte5rYXkg";
-
-            supabase = new Client(projURL, publicAnonKey, options);
-
-            NetworkStatus.Client = (Supabase.Gotrue.Client)supabase.Auth;
-
-            supabase.Auth.LoadSession();
-
-            supabase.Auth.Options.AllowUnconfirmedUserSessions = true;
-
-            // This is a well-known URL that is used to test network connectivity.
-            // We use this to determine if the network is up or down.
-            string url =
-                @"{SupabaseSettings.SupabaseURL}/auth/v1/settings?apikey={SupabaseSettings.SupabaseAnonKey}";
-            try
-            {
-                // We start the network status object. This will attempt to connect to the
-                // well-known URL and determine if the network is up or down.
-                supabase!.Auth.Online = await NetworkStatus.StartAsync(url);
-            }
-            catch (NotSupportedException)
-            {
-                // On certain platforms, the NetworkStatus object may not be able to determine
-                // the network status. In this case, we just assume the network is up.
-                supabase!.Auth.Online = true;
-            }
-            catch (Exception e)
-            {
-                // If there are other kinds of error, we assume the network is down,
-                // and in this case we send the error to a UI element to display to the user.
-                // This PostMessage method is specific to this application - you will
-                // need to adapt this to your own application.
-                supabase!.Auth.Online = false;
-            }
-            if (supabase.Auth.Online)
-            {
-                // If the network is up, we initialize the Supabase client.
-                await supabase.InitializeAsync();
-            }
+            ModelBox = string.Empty;
+            BrandBox = string.Empty;
+            HPBox = string.Empty;
+            SeriesBox = string.Empty;
+            PriceBox = string.Empty;
+            StockBox = string.Empty;
+            CatLinkBox = string.Empty;
         }
     }
 }

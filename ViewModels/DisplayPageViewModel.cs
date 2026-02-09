@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Supabase;
+using Supabase.Gotrue;
+using Supabase.Gotrue.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -8,9 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
-using Supabase;
-using Supabase.Gotrue;
-using Supabase.Gotrue.Interfaces;
+using static Supabase.Postgrest.Constants;
 using static System.Reflection.Metadata.BlobBuilder;
 using Client = Supabase.Client;
 
@@ -29,7 +30,7 @@ namespace INV_MGMT_SYS.ViewModels
         }
     }
     //public class 
-    class DisplayPageViewModel : IPageViewModel
+    class DisplayPageViewModel : IPageViewModel, INotifyPropertyChanged
     {
         Client supabase;
         private string pageTitle;
@@ -38,7 +39,25 @@ namespace INV_MGMT_SYS.ViewModels
         private string _searchVal;
 
         private ObservableCollection<Aircon> _airconList;
-        private int _idField;
+
+        public DisplayPageViewModel(Client supabase)
+        {
+            this.pageTitle = "Inventory display";
+            this.supabase = supabase;
+
+            IList<SearchCategoryVal> list = new List<SearchCategoryVal>();
+            list.Add(new SearchCategoryVal("ID"));
+            list.Add(new SearchCategoryVal("Model"));
+            list.Add(new SearchCategoryVal("Brand"));
+            list.Add(new SearchCategoryVal("HP"));
+            list.Add(new SearchCategoryVal("Series"));
+            list.Add(new SearchCategoryVal("Price"));
+            list.Add(new SearchCategoryVal("Stock"));
+            list.Add(new SearchCategoryVal("Link"));
+            _searchCategoryBox = new CollectionView(list);
+
+            this._airconList = new ObservableCollection<Aircon>();
+        }
 
         public string PageTitle
         {
@@ -49,6 +68,8 @@ namespace INV_MGMT_SYS.ViewModels
                 OnPropertyChanged();
             }
         }
+
+        #region Search
         public CollectionView SearchCategoryBox
         {
             get { return _searchCategoryBox; }
@@ -80,45 +101,9 @@ namespace INV_MGMT_SYS.ViewModels
                 OnPropertyChanged("AirconList");
             }
         }
+        #endregion
 
-        public DisplayPageViewModel()
-        {
-            this.PageTitle = "Inventory display";
-
-            IList<SearchCategoryVal> list = new List<SearchCategoryVal>();
-            list.Add(new SearchCategoryVal("ID"));
-            list.Add(new SearchCategoryVal("Model"));
-            list.Add(new SearchCategoryVal("Brand"));
-            list.Add(new SearchCategoryVal("HP"));
-            list.Add(new SearchCategoryVal("Series"));
-            list.Add(new SearchCategoryVal("Price"));
-            list.Add(new SearchCategoryVal("Stock"));
-            list.Add(new SearchCategoryVal("Link"));
-            _searchCategoryBox = new CollectionView(list);
-            _airconList = new ObservableCollection<Aircon>();
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private ICommand _search;
-        public ICommand SearchCommand
-        {
-            get
-            {
-                if (_search == null)
-                {
-                    _search = new RelayCommand(
-                        param => this.FetchData(),
-                        param => this.FetchDataCheck());
-                }
-                return _search;
-            }
-        }
-
+        #region Fetch Data
         private bool FetchDataCheck()
         {
             //Check if all fields are valid
@@ -133,147 +118,154 @@ namespace INV_MGMT_SYS.ViewModels
 
         private async void FetchData()
         {
-            InitSupabase();
-
             //optimization required
-            switch(SearchCategoryBox.CurrentPosition)
+            switch (SearchCategoryBox.CurrentPosition)
             {
                 case 0:
-                {
-                    var result = await supabase
-                        .From<Aircon>()
-                        .Where(x => x.id == _searchVal)
-                        .Get();
-                    _airconList = new ObservableCollection<Aircon>(result.Models);
-                    break;
-                }
+                    {
+                        var result = await supabase
+                            .From<Aircon>()
+                            .Where(x => x.id == _searchVal)
+                            .Get();
+
+                        _airconList = new ObservableCollection<Aircon>(result.Models);
+                        break;
+                    }
                 case 1:
-                {
-                    var result = await supabase
-                        .From<Aircon>()
-                        .Where(x => x.model == _searchVal)
-                        .Get();
-                    _airconList = new ObservableCollection<Aircon>(result.Models);
-                    break;
+                    {
+                        var result = await supabase
+                            .From<Aircon>()
+                            .Filter(x => x.model, Operator.ILike, $"%{_searchVal}%")
+                            .Get();
+                        _airconList = new ObservableCollection<Aircon>(result.Models);
+                        break;
                     }
                 case 2:
-                {
-                    var result = await supabase
-                        .From<Aircon>()
-                        .Where(x => x.brand == _searchVal)
-                        .Get();
-                    _airconList = new ObservableCollection<Aircon>(result.Models);
-                    break;
-                }
+                    {
+                        var result = await supabase
+                            .From<Aircon>()
+                            .Filter(x => x.brand, Operator.ILike, $"%{_searchVal}%")
+                            .Get();
+                        _airconList = new ObservableCollection<Aircon>(result.Models);
+                        break;
+                    }
                 case 3:
-                {
-                    float _parsedVal;
-                    float.TryParse(_searchVal, out _parsedVal);
-                    var result = await supabase
-                        .From<Aircon>()
-                        .Where(x => x.hp == _parsedVal)
-                        .Get();
-                    _airconList = new ObservableCollection<Aircon>(result.Models);
-                    break;
-                }
+                    {
+                        decimal _parsedVal;
+                        decimal.TryParse(_searchVal, out _parsedVal);
+                        var result = await supabase
+                            .From<Aircon>()
+                            .Where(x => x.hp == _parsedVal)
+                            .Get();
+                        _airconList = new ObservableCollection<Aircon>(result.Models);
+                        break;
+                    }
                 case 4:
-                {
-                    var result = await supabase
-                        .From<Aircon>()
-                        .Where(x => x.series == _searchVal)
-                        .Get();
-                    _airconList = new ObservableCollection<Aircon>(result.Models);
-                    break;
-                }
+                    {
+                        var result = await supabase
+                            .From<Aircon>()
+                            .Filter(x => x.series, Operator.ILike, $"%{_searchVal}%")
+                            .Get();
+                        _airconList = new ObservableCollection<Aircon>(result.Models);
+                        break;
+                    }
                 case 5:
-                {
-                    decimal _parsedVal;
-                    decimal.TryParse(_searchVal, out _parsedVal);
-                    var result = await supabase
-                        .From<Aircon>()
-                        .Where(x => x.price == _parsedVal)
-                        .Get();
-                    _airconList = new ObservableCollection<Aircon>(result.Models);
-                    break;
-                }
+                    {
+                        decimal _parsedVal;
+                        decimal.TryParse(_searchVal, out _parsedVal);
+                        var result = await supabase
+                            .From<Aircon>()
+                            .Where(x => x.price == _parsedVal)
+                            .Get();
+                        _airconList = new ObservableCollection<Aircon>(result.Models);
+                        break;
+                    }
                 case 6:
-                {
-                    int _parsedVal;
-                    int.TryParse(_searchVal, out _parsedVal);
-                    var result = await supabase
-                        .From<Aircon>()
-                        .Where(x => x.stock == _parsedVal)
-                        .Get();
-                    _airconList = new ObservableCollection<Aircon>(result.Models);
-                    break;
-                }
+                    {
+                        int _parsedVal;
+                        int.TryParse(_searchVal, out _parsedVal);
+                        var result = await supabase
+                            .From<Aircon>()
+                            .Where(x => x.stock == _parsedVal)
+                            .Get();
+                        _airconList = new ObservableCollection<Aircon>(result.Models);
+                        break;
+                    }
                 case 7:
-                {
-                    var result = await supabase
-                        .From<Aircon>()
-                        .Where(x => x.catalogueLink == _searchVal)
-                        .Get();
-                    _airconList = new ObservableCollection<Aircon>(result.Models);
-                    break;
-                }
+                    {
+                        var result = await supabase
+                            .From<Aircon>()
+                            .Filter(x => x.catalogueLink, Operator.ILike, $"%{_searchVal}%")
+                            .Get();
+                        _airconList = new ObservableCollection<Aircon>(result.Models);
+                        break;
+                    }
                 default:
-                    SearchValBox = "shit went wrong";
+                    SearchValBox = "stuff went wrong";
                     break;
             }
 
-            DisplayAirconList();
+            OnPropertyChanged("AirconList");
+            _airconList.CollectionChanged += airconList_CollectionChanged;
         }
-        public void DisplayAirconList()
-        {
+        #endregion
 
+        #region INotifyPropertyChanged Impl
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+                handler(this, new PropertyChangedEventArgs(propertyName));
         }
-        private async void InitSupabase()
+        #endregion
+
+
+        private void airconList_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            Console.WriteLine("Init started");
-            NetworkStatus NetworkStatus = new();
-
-            SupabaseOptions options = new();
-            options.AutoRefreshToken = true;
-
-            const string projURL = "https://shkofncmerdkpthgpihu.supabase.co";
-            const string publicAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNoa29mbmNtZXJka3B0aGdwaWh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzczNDEyNDQsImV4cCI6MjA1MjkxNzI0NH0.W_aqHJZuXG5bA7CzbSeCtaqK-GRJAuQqJfDte5rYXkg";
-
-            supabase = new Client(projURL, publicAnonKey, options);
-
-            NetworkStatus.Client = (Supabase.Gotrue.Client)supabase.Auth;
-
-            supabase.Auth.LoadSession();
-
-            supabase.Auth.Options.AllowUnconfirmedUserSessions = true;
-
-            // This is a well-known URL that is used to test network connectivity.
-            // We use this to determine if the network is up or down.
-            string url =
-                @"{SupabaseSettings.SupabaseURL}/auth/v1/settings?apikey={SupabaseSettings.SupabaseAnonKey}";
-            try
+            if (e.NewItems != null && e.NewItems.Count > 0)
             {
-                // We start the network status object. This will attempt to connect to the
-                // well-known URL and determine if the network is up or down.
-                supabase!.Auth.Online = await NetworkStatus.StartAsync(url);
+                foreach (INotifyPropertyChanged item in e.NewItems.OfType<INotifyPropertyChanged>())
+                {
+                    item.PropertyChanged += aircon_PropertyChanged;
+                }
             }
-            catch (NotSupportedException)
+            if (e.OldItems != null && e.OldItems.Count > 0)
             {
-                // On certain platforms, the NetworkStatus object may not be able to determine
-                // the network status. In this case, we just assume the network is up.
-                supabase!.Auth.Online = true;
+                foreach (INotifyPropertyChanged item in e.OldItems.OfType<INotifyPropertyChanged>())
+                {
+                    item.PropertyChanged -= aircon_PropertyChanged;
+                }
             }
-            catch (Exception e)
+        }
+
+        private void aircon_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var row = sender as Aircon;
+            SaveData(row);
+        }
+
+        private async void SaveData(Aircon row)
+        {
+            await supabase
+                .From<Aircon>()
+                .Where (x => x.id == row.id)
+                .Set(x => x, row)
+                .Update();
+        }
+
+        private ICommand _search;
+        public ICommand SearchCommand
+        {
+            get
             {
-                // If there are other kinds of error, we assume the network is down,
-                // and in this case we send the error to a UI element to display to the user.
-                // This PostMessage method is specific to this application - you will
-                // need to adapt this to your own application.
-                supabase!.Auth.Online = false;
-            }
-            if (supabase.Auth.Online)
-            {
-                // If the network is up, we initialize the Supabase client.
-                await supabase.InitializeAsync();
+                if (_search == null)
+                {
+                    _search = new RelayCommand(
+                        param => this.FetchData(),
+                        param => this.FetchDataCheck());
+                }
+                return _search;
             }
         }
     }

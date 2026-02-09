@@ -17,16 +17,16 @@
             <TextBox TextWrapping="Wrap" Text="{Binding SearchValBox}" Width="120"/>
             <Button Content="Search" Command="{Binding SearchCommand}"/>
         </StackPanel>
-        <DataGrid Height="100" ItemsSource="{Binding AirconList, Mode=OneWay}">
+        <DataGrid Height="100" ItemsSource="{Binding AirconList, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" AutoGenerateColumns="False">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding IdField, UpdateSourceTrigger=PropertyChanged}"/>
-                <DataGridTextColumn Header="Model" Binding="{Binding ModelField, UpdateSourceTrigger=PropertyChanged}"/>
-                <DataGridTextColumn Header="Brand" Binding="{Binding BrandField, UpdateSourceTrigger=PropertyChanged}"/>
-                <DataGridTextColumn Header="HP" Binding="{Binding HPField, UpdateSourceTrigger=PropertyChanged}"/>
-                <DataGridTextColumn Header="Series" Binding="{Binding SeriesField, UpdateSourceTrigger=PropertyChanged}"/>
-                <DataGridTextColumn Header="Price" Binding="{Binding PriceField, UpdateSourceTrigger=PropertyChanged}"/>
-                <DataGridTextColumn Header="Stock" Binding="{Binding StockField, UpdateSourceTrigger=PropertyChanged}"/>
-                <DataGridTextColumn Header="Link" Binding="{Binding LinkField, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="ID" Binding="{Binding id, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="Model" Binding="{Binding model, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="Brand" Binding="{Binding brand, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="HP" Binding="{Binding hp, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="Series" Binding="{Binding series, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="Price" Binding="{Binding price, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="Stock" Binding="{Binding stock, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="Link" Binding="{Binding catalogueLink, UpdateSourceTrigger=PropertyChanged}"/>
             </DataGrid.Columns>
         </DataGrid>
     </StackPanel>

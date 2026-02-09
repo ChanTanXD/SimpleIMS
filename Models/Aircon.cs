@@ -4,32 +4,32 @@ using Supabase.Postgrest.Models;
 
 namespace INV_MGMT_SYS
 {
-    [Table("AIRCON")]
+    [Table("Aircon")]
     public class Aircon : BaseModel
     {
         //Auto-generated id
-        [PrimaryKey("ID", false)]
+        [PrimaryKey("id", false)]
         public string id { get; set; }
 
-        [Column("MODEL")]
+        [Column("Model")]
         public string model { get; set; }
 
-        [Column("BRAND")]
+        [Column("Brand")]
         public string brand { get; set; }
 
-        [Column("HP")]
-        public float hp { get; set; }
+        [Column("hp")]
+        public decimal hp { get; set; }
 
-        [Column("SERIES")]
+        [Column("Series")]
         public string series { get; set; }
 
-        [Column("PRICE")]
+        [Column("Price")]
         public decimal price { get; set; }
 
-        [Column("STOCK")]
+        [Column("Stock")]
         public int stock { get; set; }
 
-        [Column("CATALOGUE_LINK")]
+        [Column("Catalogue_Link")]
         public string catalogueLink { get; set; }
     }
 }

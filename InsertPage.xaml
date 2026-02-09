@@ -69,7 +69,11 @@
             <Label Grid.Column="0" Content="Catalogue link"/>
             <TextBox Grid.Column="1" Text="{Binding CatLinkBox, UpdateSourceTrigger=PropertyChanged}" />
         </Grid>
-        <Button Content="Insert" Command="{Binding DataInsertCommand}"/>
 
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Content="Insert" Command="{Binding DataInsertCommand}"/>
+            <Button Content="Clear" Command="{Binding DataClearCommand}"/>
+        </StackPanel>
+        <Label HorizontalAlignment="Center" FontSize="35" Content="Record inserted"/>
     </StackPanel>
 </UserControl>
