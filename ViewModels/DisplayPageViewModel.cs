@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -24,25 +25,26 @@ namespace INV_MGMT_SYS.ViewModels
         {
             this.val = val;
         }
-        public override string ToString()
-        {
-            return val;
-        }
     }
+
     //public class 
     class DisplayPageViewModel : IPageViewModel, INotifyPropertyChanged
     {
         Client supabase;
-        private string pageTitle;
+        public string pageTitle;
+        public string isDeleted;
+
         private readonly CollectionView _searchCategoryBox;
         private string _searchCategoryVal;
         private string _searchVal;
+        private Aircon _selectedRow;
 
         private ObservableCollection<Aircon> _airconList;
 
         public DisplayPageViewModel(Client supabase)
         {
             this.pageTitle = "Inventory display";
+            IsDeleted = "Hidden";
             this.supabase = supabase;
 
             IList<SearchCategoryVal> list = new List<SearchCategoryVal>();
@@ -59,6 +61,7 @@ namespace INV_MGMT_SYS.ViewModels
             this._airconList = new ObservableCollection<Aircon>();
         }
 
+        #region Properties
         public string PageTitle
         {
             get => this.pageTitle;
@@ -69,11 +72,31 @@ namespace INV_MGMT_SYS.ViewModels
             }
         }
 
-        #region Search
+        public string IsDeleted
+        {
+            get => this.isDeleted;
+            set
+            {
+                this.isDeleted = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Aircon SelectedRow
+        {
+            get => this._selectedRow;
+            set
+            {
+                this._selectedRow = value;
+                OnPropertyChanged();
+            }
+        }
+
         public CollectionView SearchCategoryBox
         {
             get { return _searchCategoryBox; }
         }
+
         public string SearchCategoryVal
         {
             get => this._searchCategoryVal;
@@ -98,7 +121,7 @@ namespace INV_MGMT_SYS.ViewModels
             set
             {
                 this._airconList = value;
-                OnPropertyChanged("AirconList");
+                OnPropertyChanged();
             }
         }
         #endregion
@@ -126,9 +149,10 @@ namespace INV_MGMT_SYS.ViewModels
                         var result = await supabase
                             .From<Aircon>()
                             .Where(x => x.id == _searchVal)
+                            .Limit(50)
                             .Get();
 
-                        _airconList = new ObservableCollection<Aircon>(result.Models);
+                        AirconList = new ObservableCollection<Aircon>(result.Models);
                         break;
                     }
                 case 1:
@@ -136,8 +160,9 @@ namespace INV_MGMT_SYS.ViewModels
                         var result = await supabase
                             .From<Aircon>()
                             .Filter(x => x.model, Operator.ILike, $"%{_searchVal}%")
+                            .Limit(50)
                             .Get();
-                        _airconList = new ObservableCollection<Aircon>(result.Models);
+                        AirconList = new ObservableCollection<Aircon>(result.Models);
                         break;
                     }
                 case 2:
@@ -145,8 +170,9 @@ namespace INV_MGMT_SYS.ViewModels
                         var result = await supabase
                             .From<Aircon>()
                             .Filter(x => x.brand, Operator.ILike, $"%{_searchVal}%")
+                            .Limit(50)
                             .Get();
-                        _airconList = new ObservableCollection<Aircon>(result.Models);
+                        AirconList = new ObservableCollection<Aircon>(result.Models);
                         break;
                     }
                 case 3:
@@ -156,8 +182,9 @@ namespace INV_MGMT_SYS.ViewModels
                         var result = await supabase
                             .From<Aircon>()
                             .Where(x => x.hp == _parsedVal)
+                            .Limit(50)
                             .Get();
-                        _airconList = new ObservableCollection<Aircon>(result.Models);
+                        AirconList = new ObservableCollection<Aircon>(result.Models);
                         break;
                     }
                 case 4:
@@ -165,8 +192,9 @@ namespace INV_MGMT_SYS.ViewModels
                         var result = await supabase
                             .From<Aircon>()
                             .Filter(x => x.series, Operator.ILike, $"%{_searchVal}%")
+                            .Limit(50)
                             .Get();
-                        _airconList = new ObservableCollection<Aircon>(result.Models);
+                        AirconList = new ObservableCollection<Aircon>(result.Models);
                         break;
                     }
                 case 5:
@@ -176,8 +204,9 @@ namespace INV_MGMT_SYS.ViewModels
                         var result = await supabase
                             .From<Aircon>()
                             .Where(x => x.price == _parsedVal)
+                            .Limit(50)
                             .Get();
-                        _airconList = new ObservableCollection<Aircon>(result.Models);
+                        AirconList = new ObservableCollection<Aircon>(result.Models);
                         break;
                     }
                 case 6:
@@ -187,8 +216,9 @@ namespace INV_MGMT_SYS.ViewModels
                         var result = await supabase
                             .From<Aircon>()
                             .Where(x => x.stock == _parsedVal)
+                            .Limit(50)
                             .Get();
-                        _airconList = new ObservableCollection<Aircon>(result.Models);
+                        AirconList = new ObservableCollection<Aircon>(result.Models);
                         break;
                     }
                 case 7:
@@ -196,8 +226,9 @@ namespace INV_MGMT_SYS.ViewModels
                         var result = await supabase
                             .From<Aircon>()
                             .Filter(x => x.catalogueLink, Operator.ILike, $"%{_searchVal}%")
+                            .Limit(50)
                             .Get();
-                        _airconList = new ObservableCollection<Aircon>(result.Models);
+                        AirconList = new ObservableCollection<Aircon>(result.Models);
                         break;
                     }
                 default:
@@ -205,10 +236,26 @@ namespace INV_MGMT_SYS.ViewModels
                     break;
             }
 
-            OnPropertyChanged("AirconList");
+            IsDeleted = "Hidden";
             _airconList.CollectionChanged += airconList_CollectionChanged;
         }
         #endregion
+
+        private void EditRow()
+        {
+            WindowProduction winProd = new WindowProduction();
+            winProd.ShowWindow(new EditViewModel(supabase, SelectedRow));
+        }
+
+        private async void DeleteRow()
+        {
+            await supabase
+                .From<Aircon>()
+                .Where(x => x.id == SelectedRow.id)
+                .Delete();
+
+            IsDeleted = "Visible";
+        }
 
         #region INotifyPropertyChanged Impl
         public event PropertyChangedEventHandler PropertyChanged;
@@ -254,6 +301,7 @@ namespace INV_MGMT_SYS.ViewModels
                 .Update();
         }
 
+        #region ICommand Impl
         private ICommand _search;
         public ICommand SearchCommand
         {
@@ -268,5 +316,34 @@ namespace INV_MGMT_SYS.ViewModels
                 return _search;
             }
         }
+
+        private ICommand _edit;
+        public ICommand EditCommand
+        {
+            get
+            {
+                if (_edit == null)
+                {
+                    _edit = new RelayCommand(
+                        param => this.EditRow());
+                }
+                return _edit;
+            }
+        }
+
+        private ICommand _delete;
+        public ICommand DeleteCommand
+        {
+            get
+            {
+                if (_delete == null)
+                {
+                    _delete = new RelayCommand(
+                        param => this.DeleteRow());
+                }
+                return _delete;
+            }
+        }
+        #endregion
     }
 }

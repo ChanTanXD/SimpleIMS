@@ -18,7 +18,9 @@ namespace INV_MGMT_SYS.ViewModels
     class InsertPageViewModel : IPageViewModel
     {
         Client supabase;
-        private string pageTitle;
+        public string pageTitle;
+        public string isInserted;
+
         private string _modelVal;
         private string _brandVal;
         private string _hpVal;
@@ -30,6 +32,7 @@ namespace INV_MGMT_SYS.ViewModels
         public InsertPageViewModel(Client supabase)
         {
             this.PageTitle = "Items insertion";
+            IsInserted = "Hidden";
             this.supabase = supabase;
         }
 
@@ -106,14 +109,28 @@ namespace INV_MGMT_SYS.ViewModels
                 OnPropertyChanged();
             }
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        public string IsInserted
         {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            get => this.isInserted;
+            set
+            {
+                this.isInserted = value;
+                OnPropertyChanged();
+            }
         }
         #endregion
 
+        #region INotifyPropertyChanged Impl
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+                handler(this, new PropertyChangedEventArgs(propertyName));
+        }
+        #endregion
+
+        #region ICommand Impl
         private ICommand _dataInsert;
         public ICommand DataInsertCommand
         {
@@ -141,6 +158,7 @@ namespace INV_MGMT_SYS.ViewModels
                 return _dataClear;
             }
         }
+        #endregion
 
         private bool DataFieldCheck()
         {
@@ -189,6 +207,7 @@ namespace INV_MGMT_SYS.ViewModels
 
             await supabase.From<Aircon>().Insert(model);
             DataClear();
+            IsInserted = "Visible";
         }
 
         public void DataClear()
@@ -200,6 +219,8 @@ namespace INV_MGMT_SYS.ViewModels
             PriceBox = string.Empty;
             StockBox = string.Empty;
             CatLinkBox = string.Empty;
+
+            IsInserted = "Hidden";
         }
     }
 }
